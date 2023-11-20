@@ -46,6 +46,7 @@ def returnMainMenu():
     runMenu(menu_mappings["StartUpMenu"])
 
 menu_mappings = {
+    
     "StartUpMenu" : {
         '1':runInfo,
         '2':runSimulationParamsMenu,

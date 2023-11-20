@@ -12,7 +12,7 @@ menus = {
         color.GREEN + "3." + color.END + " Execute Simulation" + "\n" +
         color.GREEN + "4." + color.END + " Quit",
 
-    "Info" : "This program was created to simulate markets and test different asset allocation strategies.\nIt works by pulling real data from yahoo finance and uploading that data into an SQL database.\nThis data is then used to simulate trades an analyze performance from those trades.\nTo get started, try setting up new simulation parameters in the menu menu by selecting option 2.",
+    "Info" : "This program was created to simulate markets and test different asset allocation strategies.\nIt works by pulling real data from yahoo finance and uploading that data into an SQL database.\nThis data is then used to simulate trades and analyze performance from those trades.\nTo get started, try setting up new simulation parameters by selecting option 2 in the main menu.",
 
     "InfoMenu" : 
         color.GREEN + "1." + color.END + " Back \n" + 
@@ -20,7 +20,7 @@ menus = {
 
 
     "SimulationParametersMenu" : 
-        color.GREEN + "\nSimulation Parameters" + color.END + "\n" +
+        color.BOLD + color.GREEN + "\nSimulation Parameters" + color.END + color.END + "\n" +
         line + "\n" +
         color.GREEN + "1." + color.END + " View Customers in the Database \n" + 
         color.GREEN + "2." + color.END + " Add Customers to the Database \n" + 
