@@ -1,6 +1,7 @@
 import time
 from colors import *
 from menus import *
+from database import *
 
 def rollInOptions(text, delay):
     start = 0
@@ -10,6 +11,7 @@ def rollInOptions(text, delay):
             sub = text[start:i]
             print(sub)
             start = i+1
+            
     time.sleep(delay)
     sub = text[start:len(text)]
     print(sub)
@@ -41,16 +43,21 @@ def runSimulationParamsMenu():
     rollInOptions(menus["SimulationParametersMenu"], .1)
     runMenu(menu_mappings["SimulationParametersMenu"])
 
+def runSimulationExecution():
+    print(line)
+    rollInOptions(menus["SimulationExecutionMenu"], .1)
+    runMenu(menu_mappings["SimulationExecutionMenu"])  
+
 def returnMainMenu():
     rollInOptions(menus["StartUpMenu"], .1)
     runMenu(menu_mappings["StartUpMenu"])
 
 menu_mappings = {
-    
+
     "StartUpMenu" : {
         '1':runInfo,
         '2':runSimulationParamsMenu,
-        '3':print,
+        '3':runSimulationExecution,
         '4':exit_pro
     },
 
@@ -68,9 +75,22 @@ menu_mappings = {
         '6':exit_pro
     },
 
+    "SimulationExecutionMenu" : {
+        '1':print,
+        '2':print,
+        '3':print,
+        '4':print,
+        '5':print,
+        '6':print,
+        '7':print,
+        '8':returnMainMenu,
+        '9':exit_pro
+    },
+
 }
 
 def main():
+    initializeDB()
     rollInOptions(menus["StartUpMenu"], .1)
     runMenu(menu_mappings["StartUpMenu"])
 
