@@ -2,6 +2,7 @@ import time
 from colors import *
 from menus import *
 from database import *
+from finance import *
 
 def rollInOptions(text, delay):
     start = 0
@@ -52,6 +53,70 @@ def returnMainMenu():
     rollInOptions(menus["StartUpMenu"], .1)
     runMenu(menu_mappings["StartUpMenu"])
 
+def addCustomer():
+    rollInOptions(menus["AddCustomersMenu"], .1)
+
+    f_name = None
+    while True:
+        print(line)
+        f_name = input("Define Customer's First Name: ")
+        if f_name.isalpha():
+            break
+        print("Only valid letter selections are permitted")
+
+    l_name = None
+    while True:
+        print(line)
+        l_name = input("Define Customer's Last Name: ")
+        if l_name.isalpha():
+            break
+        print("Only valid letter selections are permitted")
+
+    starting_cash = None
+    while True:
+        print(line)
+        starting_cash = input("Define Starting Cash Balance: $")
+        if starting_cash.isnumeric():
+            break
+        print("This must be a valid number, please exclude commas.")
+
+    ticker = None
+    while True:
+        print(line)
+        ticker = input("Input a Valid Stock Ticker: ")
+        if validateTicker(ticker):
+            break
+        print("This ticker was not valid. Please try again.")
+
+    print(line)
+    rollInOptions(menus["Strategies"], .1)
+
+    strategy = None
+    while True:
+        print(line)
+        strategy = input("Choose a Strategy: ")
+        if strategy.isnumeric() and int(strategy) <= 4:
+            break
+        print("Please Make a Valid Selection")
+
+    investment_percentage = None
+    while True:
+        print(line)
+        investment_percentage = input("Define Percentage to Invest per Order: ")
+        if investment_percentage.replace(".", "").isnumeric() and float(investment_percentage) <= 100:
+            break
+        print("This must be a valid percentage. Do not include the percentage sign.")
+
+    try:
+        addNewClient(f_name, l_name, starting_cash, ticker, strategy, investment_percentage)
+    except:
+        print("Something went wrong adding your selection. Exiting Program")
+        return -1
+    
+    print(line)
+    print("Successfully added " + f_name + " " + l_name + " to the database")
+    runSimulationParamsMenu()
+
 menu_mappings = {
 
     "StartUpMenu" : {
@@ -68,7 +133,7 @@ menu_mappings = {
 
     "SimulationParametersMenu" : {
         '1':print,
-        '2':print,
+        '2':addCustomer,
         '3':print,
         '4':print,
         '5':returnMainMenu,
@@ -95,4 +160,3 @@ def main():
     runMenu(menu_mappings["StartUpMenu"])
 
 main()
-

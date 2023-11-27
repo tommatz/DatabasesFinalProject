@@ -41,4 +41,13 @@ menus = {
         color.GREEN + "7." + color.END + " Report Stock Lowest Value From Simulation \n" + 
         color.GREEN + "8." + color.END + " Back \n" + 
         color.GREEN + "9." + color.END + " Quit",
+
+    "AddCustomersMenu" : color.BOLD + color.GREEN + "\nAdd Customer" + color.END + color.END,
+
+    "Strategies" : color.BOLD + color.GREEN + "\nPlease Select a Strategy" + color.END + color.END + "\n" +
+        line + "\n" +
+        color.GREEN + "1." + color.END + " Buy Every Day at Market Close\n" + 
+        color.GREEN + "2." + color.END + " Buy Every Red Day at Market Close \n" + 
+        color.GREEN + "3." + color.END + " Buy Every Green Day at Market Close \n" + 
+        color.GREEN + "4." + color.END + " Buy Every Day There is at least a 1" + "%" + " drop at Market Close"
 }
