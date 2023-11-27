@@ -1,8 +1,11 @@
 import time
+from datetime import date, datetime, timedelta
 from colors import *
 from menus import *
 from database import *
-from finance import *
+
+simulation_start_date = "2022-01-01"
+simulation_end_date = str(date.today())
 
 def rollInOptions(text, delay):
     start = 0
@@ -52,6 +55,56 @@ def runSimulationExecution():
 def returnMainMenu():
     rollInOptions(menus["StartUpMenu"], .1)
     runMenu(menu_mappings["StartUpMenu"])
+
+def viewCustomers():
+    customers = getCustomers()
+    for x in customers:
+        print(line)
+        print(x)
+
+    runSimulationParamsMenu()
+
+def editSimDates():
+    global simulation_start_date, simulation_end_date
+    rollInOptions(menus["EditSimDatesMenu"], .1)
+
+    s_date = None
+    while True:
+        print(line)
+        s_date = input("Define Simulation Start Date (YYYY-MM-DD): ")
+        date_format = '%Y-%m-%d'
+        try:
+            dateObject = datetime.strptime(s_date, date_format)
+            simulation_start_date = datetime.strptime(str(dateObject), '%Y-%m-%d %H:%M:%S')
+            if dateObject < (datetime.now() - timedelta(days=1)):
+                s_date = dateObject
+                break
+            print(line)
+            print("Start Date Must be in the Past!")
+        except ValueError:
+            print(line)
+            print("Incorrect data format, should be YYYY-MM-DD")
+
+    e_date = None
+    while True:
+        print(line)
+        e_date = input("Define Simulation End Date (YYYY-MM-DD): ")
+        date_format = '%Y-%m-%d'
+        try:
+            dateObject = datetime.strptime(e_date, date_format)
+            simulation_end_date = datetime.strptime(str(dateObject), '%Y-%m-%d %H:%M:%S')
+            if dateObject > s_date and dateObject < datetime.now():
+                break
+            print(line)
+            print("End Date Must Come After Start Date and Must be in the Past!")
+        except ValueError:
+            print(line)
+            print("Incorrect data format, should be YYYY-MM-DD")
+
+    datesUpdated(simulation_start_date, simulation_end_date)
+    print(line)
+    print("Successfully updated simulation dates")
+    runSimulationParamsMenu()
 
 def addCustomer():
     rollInOptions(menus["AddCustomersMenu"], .1)
@@ -108,7 +161,7 @@ def addCustomer():
         print("This must be a valid percentage. Do not include the percentage sign.")
 
     try:
-        addNewClient(f_name, l_name, starting_cash, ticker, strategy, investment_percentage)
+        addNewClient(f_name, l_name, starting_cash, ticker, strategy, investment_percentage, simulation_start_date, simulation_end_date)
     except:
         print("Something went wrong adding your selection. Exiting Program")
         return -1
@@ -132,10 +185,10 @@ menu_mappings = {
     },
 
     "SimulationParametersMenu" : {
-        '1':print,
+        '1':viewCustomers,
         '2':addCustomer,
         '3':print,
-        '4':print,
+        '4':editSimDates,
         '5':returnMainMenu,
         '6':exit_pro
     },

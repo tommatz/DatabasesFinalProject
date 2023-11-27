@@ -49,5 +49,8 @@ menus = {
         color.GREEN + "1." + color.END + " Buy Every Day at Market Close\n" + 
         color.GREEN + "2." + color.END + " Buy Every Red Day at Market Close \n" + 
         color.GREEN + "3." + color.END + " Buy Every Green Day at Market Close \n" + 
-        color.GREEN + "4." + color.END + " Buy Every Day There is at least a 1" + "%" + " drop at Market Close"
+        color.GREEN + "4." + color.END + " Buy Every Day There is at least a 1" + "%" + " drop at Market Close",
+
+    "EditSimDatesMenu" : color.BOLD + color.GREEN + "\nEdit Simulation Dates" + color.END + color.END,
+
 }
