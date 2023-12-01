@@ -4,7 +4,7 @@ line = color.BLUE + "---------------------------------"  + color.END
 
 menus = {
     "StartUpMenu" : 
-        color.BOLD + color.GREEN + "\nWelcome To The Stock Broker Simulation!" + color.END + color.END + "\n" +
+        color.BOLD + color.GREEN + "\nWelcome To The Stockbroker Simulation!" + color.END + color.END + "\n" +
         line +
         "\nPlease Choose an Option Below \n" + line + "\n" +
         color.GREEN + "1." + color.END + " Info \n" + 
@@ -52,5 +52,7 @@ menus = {
         color.GREEN + "4." + color.END + " Buy Every Day There is at least a 1" + "%" + " drop at Market Close",
 
     "EditSimDatesMenu" : color.BOLD + color.GREEN + "\nEdit Simulation Dates" + color.END + color.END,
+
+    "RemoveCustomerMenu" : color.BOLD + color.GREEN + "\nRemove Customer" + color.END + color.END,
 
 }

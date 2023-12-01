@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta
 from colors import *
 from menus import *
 from database import *
+from simulation import *
 
 simulation_start_date = "2022-01-01"
 simulation_end_date = str(date.today())
@@ -49,6 +50,8 @@ def runSimulationParamsMenu():
 
 def runSimulationExecution():
     print(line)
+    #consider adding a multithreaded loading symbol
+    executeSimulation()
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])  
 
@@ -170,6 +173,26 @@ def addCustomer():
     print("Successfully added " + f_name + " " + l_name + " to the database")
     runSimulationParamsMenu()
 
+def removeCustomerMenu():
+    rollInOptions(menus["RemoveCustomerMenu"], .1)
+
+    uuid_input = None
+    while True:
+        print(line)
+        uuid_input = input("Please Input a Valid UUID or '1' to Go Back: ")
+        if uuid_input == '1' or validateCustomer(uuid_input):
+            break
+        print("This Customer Does Not Exist. Please Try Again")
+
+    if uuid_input != '1':
+        removeCustomer(uuid_input)
+        print("Successfully Removed " + uuid_input + " From the Database")
+
+    print(line)
+    rollInOptions(menus["SimulationParametersMenu"], .1)
+    runMenu(menu_mappings["SimulationParametersMenu"])
+
+
 menu_mappings = {
 
     "StartUpMenu" : {
@@ -187,7 +210,7 @@ menu_mappings = {
     "SimulationParametersMenu" : {
         '1':viewCustomers,
         '2':addCustomer,
-        '3':print,
+        '3':removeCustomerMenu,
         '4':editSimDates,
         '5':returnMainMenu,
         '6':exit_pro
