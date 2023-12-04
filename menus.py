@@ -1,6 +1,18 @@
-from colors import *
+class color:
+   PURPLE = '\033[95m'
+   CYAN = '\033[96m'
+   DARKCYAN = '\033[36m'
+   BLUE = '\033[94m'
+   GREEN = '\033[92m'
+   YELLOW = '\033[93m'
+   RED = '\033[91m'
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
 
 line = color.BLUE + "---------------------------------"  + color.END
+
+white_line = "---------------------------------"
 
 menus = {
     "StartUpMenu" : 
@@ -32,15 +44,16 @@ menus = {
     "SimulationExecutionMenu" : 
         color.BOLD + color.GREEN + "\nSimulation Reports" + color.END + color.END + "\n" +
         line + "\n" +
-        color.GREEN + "1." + color.END + " View Simulated Stocks \n" + 
-        color.GREEN + "2." + color.END + " Report Customer Portfolio Value \n" + 
-        color.GREEN + "3." + color.END + " Report Customer Portfolio Value on Specific Date \n" + 
-        color.GREEN + "4." + color.END + " Report Best Performing Stock From Simulation \n" + 
-        color.GREEN + "5." + color.END + " Report Worst Performing Stock From Simulation \n" + 
-        color.GREEN + "6." + color.END + " Report Stock Highest Value From Simulation \n" + 
-        color.GREEN + "7." + color.END + " Report Stock Lowest Value From Simulation \n" + 
-        color.GREEN + "8." + color.END + " Back \n" + 
-        color.GREEN + "9." + color.END + " Quit",
+        color.GREEN + "1." + color.END + " View Customers in the Database \n" + 
+        color.GREEN + "2." + color.END + " View Simulated Stocks \n" + 
+        color.GREEN + "3." + color.END + " Report Customer Portfolio Value \n" + 
+        color.GREEN + "4." + color.END + " Report Customer Portfolio Value on Specific Date \n" + 
+        color.GREEN + "5." + color.END + " Report Best Performing Stock From Simulation \n" + 
+        color.GREEN + "6." + color.END + " Report Worst Performing Stock From Simulation \n" + 
+        color.GREEN + "7." + color.END + " Report Stock's Highest Value From Simulation \n" + 
+        color.GREEN + "8." + color.END + " Report Stock's Lowest Value From Simulation \n" + 
+        color.GREEN + "9." + color.END + " Back \n" + 
+        color.GREEN + "10." + color.END + " Quit",
 
     "AddCustomersMenu" : color.BOLD + color.GREEN + "\nAdd Customer" + color.END + color.END,
 

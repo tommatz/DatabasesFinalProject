@@ -1,9 +1,7 @@
 import time
 from datetime import date, datetime, timedelta
-from colors import *
 from menus import *
 from database import *
-from simulation import *
 
 simulation_start_date = "2022-01-01"
 simulation_end_date = str(date.today())
@@ -48,10 +46,11 @@ def runSimulationParamsMenu():
     rollInOptions(menus["SimulationParametersMenu"], .1)
     runMenu(menu_mappings["SimulationParametersMenu"])
 
-def runSimulationExecution():
+def runSimulationExecution(run_exec = None):
     print(line)
-    #consider adding a multithreaded loading symbol
-    executeSimulation()
+    if run_exec != False:
+        #consider adding a multithreaded loading symbol
+        executeSimulation()
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])  
 
@@ -59,13 +58,50 @@ def returnMainMenu():
     rollInOptions(menus["StartUpMenu"], .1)
     runMenu(menu_mappings["StartUpMenu"])
 
-def viewCustomers():
+def stratNumToText(num):
+    if num == 1:
+        return "everyday at market close"
+    elif num == 2:
+        return "every red day at market close"
+    elif num == 3:
+        return "every green day at market close"
+    elif num == 4:
+        return "every day there is at least a 1" + "%" + " drop"
+    
+def viewCustomers(isSimParam = None):
     customers = getCustomers()
     for x in customers:
         print(line)
-        print(x)
+        uuid_c = x[0]
+        f_name = x[1]
+        l_name = x[2]
+        s_cash = "{:.2f}".format(x[3])
+        c_cash = "{:.2f}".format(x[4])
+        strats = getCustomerStrategies(uuid_c)
+        print(f"Customer {f_name} {l_name} with uuid: {uuid_c}")
+        time.sleep(.1)
+        print(f"started with ${s_cash} and currently has ${c_cash} in cash.")
+        print(white_line)
+        time.sleep(.1)
+        print(f"{f_name}'s Trading Strategy:")
+        time.sleep(.1)
+        print(white_line)
+        for y in strats:
+            time.sleep(.1)
+            strat_type = stratNumToText(int(y[1]))
+            ticker = y[2]
+            percent = y[3]
+            print(f"{f_name} is trading ticker symbol: {ticker} with the strategy of spending")
+            time.sleep(.1)
+            print(f"{percent}% of their cash while buying {strat_type}.")
 
-    runSimulationParamsMenu()
+    if isSimParam != False:
+        runSimulationParamsMenu()
+    else:
+        runSimulationExecution(False)
+
+def viewCustomersExec():
+    viewCustomers(False)
 
 def editSimDates():
     global simulation_start_date, simulation_end_date
@@ -217,15 +253,16 @@ menu_mappings = {
     },
 
     "SimulationExecutionMenu" : {
-        '1':print,
+        '1':viewCustomersExec,
         '2':print,
         '3':print,
         '4':print,
         '5':print,
         '6':print,
         '7':print,
-        '8':returnMainMenu,
-        '9':exit_pro
+        '8':print,
+        '9':returnMainMenu,
+        '10':exit_pro
     },
 
 }
