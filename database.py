@@ -82,6 +82,17 @@ def datesUpdated(s_date, e_date):
         dropTable(x)
         dowloadTickerInfo(x, s_date, e_date)
 
+def getSimulatedStocks():
+    global cur, con
+    res = cur.execute("""SELECT name FROM sqlite_master WHERE type='table';""")
+    ticker_names = []
+    for x in res.fetchall():
+        x = list(x)
+        if x[0] != 'CUSTOMER' and x[0] != 'ORDER_HISTORY' and x[0] != 'STRATEGIES':
+            ticker_names.append(x[0])
+
+    return(ticker_names)
+
 def addOrder(uuid, ticker, date, order_type, cash_amount, execution_time):
     global cur, con
     cur.execute("INSERT INTO ORDER_HISTORY VALUES (?,?,?,?,?,?);", (uuid, ticker, date, order_type, cash_amount, execution_time))
@@ -155,9 +166,14 @@ def getStockValueOnDate(ticker, date):
     res = cur.execute(f"SELECT close FROM {ticker} WHERE date = ?;", (date,))
     return (res.fetchone())
 
-def getStockMaxDate(ticker):
+def getStockNearestDate(ticker, date):
     global cur, con
-    res = cur.execute(f"SELECT date FROM {ticker} WHERE date = (SELECT MAX(date) FROM {ticker});")
+    res = cur.execute(f"SELECT date FROM {ticker} WHERE date = (SELECT MAX(date) FROM {ticker} WHERE date <= '{date}');")
+    return (res.fetchone())
+
+def getStockNearestDateLower(ticker):
+    global cur, con
+    res = cur.execute(f"SELECT Min(date) FROM {ticker};")
     return (res.fetchone())
 
 def getCustomerStrategies(uuid_c):
@@ -165,10 +181,70 @@ def getCustomerStrategies(uuid_c):
     res = cur.execute("SELECT * FROM STRATEGIES WHERE uuid = ?;", (uuid_c,))
     return (list(res.fetchall()))  
 
-def getCustomerCurrentCash(uuid_c):
+def getCustomerStartingCash(uuid_c):
     global cur, con
-    res = cur.execute("SELECT current_cash FROM CUSTOMER WHERE uuid = ?;", (uuid_c,))
+    res = cur.execute("SELECT starting_cash FROM CUSTOMER WHERE uuid = ?;", (uuid_c,))
     return (res.fetchone())
+
+def getStocksBestValue(ticker):
+    global cur, con
+    res = cur.execute(f"SELECT MAX(close) FROM {ticker};")
+    return (res.fetchone())
+  
+
+def getBestPerformingStock(s_date, e_date, worst):
+    global cur, con
+    tickers = getSimulatedStocks()
+
+    real_s_date = getStockNearestDate(tickers[0], s_date)
+    if real_s_date == None:
+        real_s_date = getStockNearestDateLower(tickers[0])
+
+    real_e_date = getStockNearestDate(tickers[0], e_date)
+    if real_e_date == None:
+        real_e_date = getStockNearestDateLower(tickers[0])
+
+    query = "SELECT"
+
+    for i in range(len(tickers)):
+        if i > 0:
+            query += ","
+        query += f" {tickers[i]}_start.close AS {tickers[i]}_start_close, {tickers[i]}_end.close AS {tickers[i]}_end_close"
+
+    query += " FROM"
+
+    for i in range(len(tickers)):
+        if i > 0:
+            query += ","
+        query += f" (SELECT close FROM {tickers[i]} WHERE date = '{real_s_date[0]}') AS {tickers[i]}_start,"
+        query += f" (SELECT close FROM {tickers[i]} WHERE date = '{real_e_date[0]}') AS {tickers[i]}_end"
+
+    query += ";"
+
+    res = cur.execute(query)
+    res =  list(res.fetchone())
+    final_results = []
+
+    for i in range(0, len(res), 2):
+        v1 = res[i]
+        v2 = res[i + 1]
+        percent_change = ((v2 - v1)/abs(v1))*100
+        final_results.append([tickers[int(i/2)], percent_change, v1, v2])
+
+    best_chg = final_results[0][1]
+    best = final_results[0]
+
+    for i in range(1, len(final_results)):
+        if worst != True:
+            if final_results[i][1] > best_chg:
+                best_chg = final_results[i][1]
+                best = final_results[i]
+        else:
+            if final_results[i][1] < best_chg:
+                best_chg = final_results[i][1]
+                best = final_results[i]
+
+    return best
 
 def executeTradesOnDateTable(strat, date_table):
     starting_cash, current_cash = getCustomerCash(strat[0])
@@ -213,7 +289,7 @@ def calculatePortfolioValue(uuid, date):
         simulatated_tickers.append(strat[2])
 
     if len(simulatated_tickers) <= 0:
-        current_cash = getCustomerCurrentCash(uuid)
+        current_cash = getCustomerStartingCash(uuid)
         return current_cash[0]
 
     query = "SELECT"
@@ -226,7 +302,7 @@ def calculatePortfolioValue(uuid, date):
     for ticker in simulatated_tickers:
         query += (", " + ticker)
 
-    query += f" WHERE ORDER_HISTORY.uuid = '{uuid}' AND "
+    query += f" WHERE ORDER_HISTORY.uuid = '{uuid}' AND ORDER_HISTORY.date <= '{date}' AND "
 
     for i in range(len(simulatated_tickers)):
         if i > 0:
@@ -234,7 +310,7 @@ def calculatePortfolioValue(uuid, date):
         query += (f"(ORDER_HISTORY.ticker = '{simulatated_tickers[i]}' AND ORDER_HISTORY.date = {simulatated_tickers[i]}.date)")
 
     query += ";"
-
+    
     res = cur.execute(query)
     results_list = (list(res.fetchall()))
 
@@ -242,19 +318,27 @@ def calculatePortfolioValue(uuid, date):
     portfolio_value = 0
 
     for i in range(len(simulatated_tickers)):
-        true_holdings.append([simulatated_tickers[i], results_list[i][0]])
+        if results_list[i][0] == None:
+            true_holdings.append([simulatated_tickers[i], 0])
+        else:
+            true_holdings.append([simulatated_tickers[i], results_list[i][0]])
 
     for i in range(len(true_holdings)):
-        end_value = getStockValueOnDate(true_holdings[i][0], date)
+        real_date = getStockNearestDate(true_holdings[i][0], date)
 
-        if end_value == None:
-            max_date = getStockMaxDate(true_holdings[i][0])
-            end_value = getStockValueOnDate(true_holdings[i][0], max_date[0])
+        if real_date == None:
+            real_date = getStockNearestDateLower(true_holdings[i][0])
 
+        end_value = getStockValueOnDate(true_holdings[i][0], real_date[0])
         cash_value = round(end_value[0] * true_holdings[i][1], 2)
         portfolio_value += cash_value
 
-    current_cash = getCustomerCurrentCash(uuid)
+    starting_cash = getCustomerStartingCash(uuid)[0]
 
-    portfolio_value += current_cash[0]
-    return portfolio_value
+    res = cur.execute("SELECT SUM(cash_amount) FROM ORDER_HISTORY WHERE uuid = ? and date <= ?;", (uuid, date, ))
+    spent = res.fetchone()[0]
+    if spent != None:
+        starting_cash -= spent
+
+    portfolio_value += starting_cash
+    return round(portfolio_value, 2)

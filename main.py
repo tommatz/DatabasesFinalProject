@@ -248,6 +248,91 @@ def reportCustomerPortfolioValue():
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])
 
+def outputSimulatedStocks():
+    rollInOptions(menus["SimulatedStocksMenu"], .1)
+    print(line)
+
+    tickers = getSimulatedStocks()
+    for ticker in tickers:
+        print(ticker)
+        print(white_line)
+
+    rollInOptions(menus["SimulationExecutionMenu"], .1)
+    runMenu(menu_mappings["SimulationExecutionMenu"])
+
+
+def outputBestPerformingStock():
+    rollInOptions(menus["BestPerformingStockMenu"], .1)
+    print(line)
+
+    result = getBestPerformingStock(simulation_start_date, simulation_end_date, False)
+    print(f"The best performing stock from the simulation was {result[0]}.")
+    time.sleep(.1)
+    print(f"{result[0]} started with a value of ${round(result[2], 2)} and ended with a value of ${round(result[3], 2)}.")
+    time.sleep(.1)
+    print(f"This resulted in a {round(result[1] ,2)}% percent change from {simulation_start_date} to {simulation_end_date}.")
+    time.sleep(.1)
+
+    rollInOptions(menus["SimulationExecutionMenu"], .1)
+    runMenu(menu_mappings["SimulationExecutionMenu"])
+
+
+def outputWorstPerformingStock():
+    rollInOptions(menus["WorstPerformingStockMenu"], .1)
+    print(line)
+
+    result = getBestPerformingStock(simulation_start_date, simulation_end_date, True)
+    print(f"The worst performing stock from the simulation was {result[0]}.")
+    time.sleep(.1)
+    print(f"{result[0]} started with a value of ${round(result[2], 2)} and ended with a value of ${round(result[3], 2)}.")
+    time.sleep(.1)
+    print(f"This resulted in a {round(result[1] ,2)}% percent change from {simulation_start_date} to {simulation_end_date}.")
+    time.sleep(.1)
+
+    rollInOptions(menus["SimulationExecutionMenu"], .1)
+    runMenu(menu_mappings["SimulationExecutionMenu"])
+
+def reportCustomerPortfolioValueOnDate():
+    rollInOptions(menus["CustomerReportMenu"], .1)
+
+    uuid_input = None
+    while True:
+        print(line)
+        uuid_input = input("Please Input a Valid UUID or '1' to Go Back: ")
+        if uuid_input == '1' or validateCustomer(uuid_input):
+            break
+        print("This Customer Does Not Exist. Please Try Again")
+
+    if uuid_input != '1':
+        
+        s_date = None
+        while True:
+            print(line)
+            s_date = input("Date (YYYY-MM-DD): ")
+            date_format = '%Y-%m-%d'
+            try:
+                dateObject = datetime.strptime(s_date, date_format)
+                start_date = datetime.strptime(simulation_start_date, date_format)
+                end_date = datetime.strptime(simulation_end_date, date_format)
+                if dateObject <= end_date and dateObject >= start_date:
+                    s_date = dateObject
+                    break
+                print(line)
+                print("Date be between simulation dates! " + simulation_start_date + " - " + simulation_end_date)
+
+            except ValueError:
+                print(line)
+                print("Incorrect data format, should be YYYY-MM-DD")
+
+        port_value = calculatePortfolioValue(uuid_input, s_date)
+        print(line)
+        print("$"+str(port_value))
+
+    print(line)
+    rollInOptions(menus["SimulationExecutionMenu"], .1)
+    runMenu(menu_mappings["SimulationExecutionMenu"])
+
+
 menu_mappings = {
 
     "StartUpMenu" : {
@@ -273,11 +358,11 @@ menu_mappings = {
 
     "SimulationExecutionMenu" : {
         '1':viewCustomersExec,
-        '2':print,
+        '2':outputSimulatedStocks,
         '3':reportCustomerPortfolioValue,
-        '4':print,
-        '5':print,
-        '6':print,
+        '4':reportCustomerPortfolioValueOnDate,
+        '5':outputBestPerformingStock,
+        '6':outputWorstPerformingStock,
         '7':print,
         '8':print,
         '9':returnMainMenu,

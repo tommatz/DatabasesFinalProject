@@ -46,7 +46,7 @@ menus = {
         line + "\n" +
         color.GREEN + "1." + color.END + " View Customers in the Database \n" + 
         color.GREEN + "2." + color.END + " View Simulated Stocks \n" + 
-        color.GREEN + "3." + color.END + " Report Customer Portfolio Value \n" + 
+        color.GREEN + "3." + color.END + " Report Customer Portfolio Value at End of Simulation\n" + 
         color.GREEN + "4." + color.END + " Report Customer Portfolio Value on Specific Date \n" + 
         color.GREEN + "5." + color.END + " Report Best Performing Stock From Simulation \n" + 
         color.GREEN + "6." + color.END + " Report Worst Performing Stock From Simulation \n" + 
@@ -69,5 +69,11 @@ menus = {
     "RemoveCustomerMenu" : color.BOLD + color.GREEN + "\nRemove Customer" + color.END + color.END,
 
     "CustomerReportMenu" : color.BOLD + color.GREEN + "\nCustomer Report" + color.END + color.END,
+
+    "SimulatedStocksMenu" : color.BOLD + color.GREEN + "\nSimulated Stocks" + color.END + color.END,
+
+    "BestPerformingStockMenu" : color.BOLD + color.GREEN + "\nBest Performing Stock" + color.END + color.END,
+
+    "WorstPerformingStockMenu" : color.BOLD + color.GREEN + "\nWorst Performing Stock" + color.END + color.END,
 
 }
