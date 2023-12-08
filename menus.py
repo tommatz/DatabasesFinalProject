@@ -76,4 +76,8 @@ menus = {
 
     "WorstPerformingStockMenu" : color.BOLD + color.GREEN + "\nWorst Performing Stock" + color.END + color.END,
 
+    "BestStockDayMenu" : color.BOLD + color.GREEN + "\nHighest Value in Simulation" + color.END + color.END,
+
+    "WorstStockDayMenu" : color.BOLD + color.GREEN + "\nLowest Value in Simulation" + color.END + color.END,
+
 }

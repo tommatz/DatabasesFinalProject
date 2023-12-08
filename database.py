@@ -188,9 +188,13 @@ def getCustomerStartingCash(uuid_c):
 
 def getStocksBestValue(ticker):
     global cur, con
-    res = cur.execute(f"SELECT MAX(close) FROM {ticker};")
-    return (res.fetchone())
-  
+    res = cur.execute(f"SELECT MAX(high), date FROM {ticker};")
+    return list(res.fetchone())
+
+def getStocksWorstValue(ticker):
+    global cur, con
+    res = cur.execute(f"SELECT MIN(low), date FROM {ticker};")
+    return list(res.fetchone())
 
 def getBestPerformingStock(s_date, e_date, worst):
     global cur, con

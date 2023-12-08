@@ -176,6 +176,7 @@ def addCustomer():
     while True:
         print(line)
         ticker = input("Input a Valid Stock Ticker: ")
+        ticker.upper()
         if validateTicker(ticker):
             break
         print("This ticker was not valid. Please try again.")
@@ -276,7 +277,6 @@ def outputBestPerformingStock():
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])
 
-
 def outputWorstPerformingStock():
     rollInOptions(menus["WorstPerformingStockMenu"], .1)
     print(line)
@@ -288,6 +288,50 @@ def outputWorstPerformingStock():
     time.sleep(.1)
     print(f"This resulted in a {round(result[1] ,2)}% percent change from {simulation_start_date} to {simulation_end_date}.")
     time.sleep(.1)
+
+    rollInOptions(menus["SimulationExecutionMenu"], .1)
+    runMenu(menu_mappings["SimulationExecutionMenu"])
+
+def outputBestStockDay():
+    rollInOptions(menus["BestStockDayMenu"], .1)
+    tickers = getSimulatedStocks()
+
+    ticker = None
+    while True:
+        print(line)
+        ticker = input("Input a Stock Ticker in the Simulation or '1' for Back: ")
+        ticker = ticker.upper()
+        if ticker == '1' or ticker in tickers:
+            break
+        print("This ticker was not valid. Please try again.")
+
+    if ticker != '1':
+        print(white_line)
+        result = getStocksBestValue(ticker)
+        print(f"{ticker} had its highest value on {result[1][:-9]} where it achieved a peak value of ${round(result[0], 2)}.")
+        print(white_line)
+
+    rollInOptions(menus["SimulationExecutionMenu"], .1)
+    runMenu(menu_mappings["SimulationExecutionMenu"])
+
+def outputWorstStockDay():
+    rollInOptions(menus["WorstStockDayMenu"], .1)
+    tickers = getSimulatedStocks()
+
+    ticker = None
+    while True:
+        print(line)
+        ticker = input("Input a Stock Ticker in the Simulation or '1' for Back: ")
+        ticker = ticker.upper()
+        if ticker == '1' or ticker in tickers:
+            break
+        print("This ticker was not valid. Please try again.")
+
+    if ticker != '1':
+        print(white_line)
+        result = getStocksWorstValue(ticker)
+        print(f"{ticker} had its lowest value on {result[1][:-9]} where it achieved a bottom value of ${round(result[0], 2)}.")
+        print(white_line)
 
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])
@@ -363,8 +407,8 @@ menu_mappings = {
         '4':reportCustomerPortfolioValueOnDate,
         '5':outputBestPerformingStock,
         '6':outputWorstPerformingStock,
-        '7':print,
-        '8':print,
+        '7':outputBestStockDay,
+        '8':outputWorstStockDay,
         '9':returnMainMenu,
         '10':exit_pro
     },
