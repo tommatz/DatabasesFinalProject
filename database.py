@@ -110,6 +110,11 @@ def retrieveStrategies():
     res = cur.execute("SELECT * FROM STRATEGIES;")
     return (list(res.fetchall()))
 
+def retrieveCustomerStrategies(uuid):
+    global cur, con
+    res = cur.execute("SELECT * FROM STRATEGIES WHERE uuid = ?;", (uuid,))
+    return (list(res.fetchall()))
+
 def getAllDates(ticker):
     global cur, con
     res = cur.execute(f"SELECT date FROM {ticker};")
@@ -144,6 +149,26 @@ def resetCustomerCash():
     global cur, con
     cur.execute("UPDATE CUSTOMER SET current_cash = starting_cash;")
     con.commit()
+
+def getStockValueOnDate(ticker, date):
+    global cur, con
+    res = cur.execute(f"SELECT close FROM {ticker} WHERE date = ?;", (date,))
+    return (res.fetchone())
+
+def getStockMaxDate(ticker):
+    global cur, con
+    res = cur.execute(f"SELECT date FROM {ticker} WHERE date = (SELECT MAX(date) FROM {ticker});")
+    return (res.fetchone())
+
+def getCustomerStrategies(uuid_c):
+    global cur, con
+    res = cur.execute("SELECT * FROM STRATEGIES WHERE uuid = ?;", (uuid_c,))
+    return (list(res.fetchall()))  
+
+def getCustomerCurrentCash(uuid_c):
+    global cur, con
+    res = cur.execute("SELECT current_cash FROM CUSTOMER WHERE uuid = ?;", (uuid_c,))
+    return (res.fetchone())
 
 def executeTradesOnDateTable(strat, date_table):
     starting_cash, current_cash = getCustomerCash(strat[0])
@@ -181,11 +206,55 @@ def executeSimulation():
             date_table = getOnePercentDropDates(strat[2])
             executeTradesOnDateTable(strat, date_table)
 
-def calculatePortfolioValue(uuid, simulation_end_date, date):
-    if date == None:
-        date = simulation_end_date
+def calculatePortfolioValue(uuid, date):
+    simulatated_tickers = []
+    strats = retrieveCustomerStrategies(uuid)
+    for strat in strats:
+        simulatated_tickers.append(strat[2])
 
-def getCustomerStrategies(uuid_c):
-    global cur, con
-    res = cur.execute("SELECT * FROM STRATEGIES WHERE uuid = ?;", (uuid_c,))
-    return (list(res.fetchall()))  
+    if len(simulatated_tickers) <= 0:
+        current_cash = getCustomerCurrentCash(uuid)
+        return current_cash[0]
+
+    query = "SELECT"
+
+    for ticker in simulatated_tickers:
+        query += (" SUM(ORDER_HISTORY.cash_amount/" + ticker + ".close)")
+
+    query += " FROM ORDER_HISTORY"
+
+    for ticker in simulatated_tickers:
+        query += (", " + ticker)
+
+    query += f" WHERE ORDER_HISTORY.uuid = '{uuid}' AND "
+
+    for i in range(len(simulatated_tickers)):
+        if i > 0:
+            query += " OR "
+        query += (f"(ORDER_HISTORY.ticker = '{simulatated_tickers[i]}' AND ORDER_HISTORY.date = {simulatated_tickers[i]}.date)")
+
+    query += ";"
+
+    res = cur.execute(query)
+    results_list = (list(res.fetchall()))
+
+    true_holdings = []
+    portfolio_value = 0
+
+    for i in range(len(simulatated_tickers)):
+        true_holdings.append([simulatated_tickers[i], results_list[i][0]])
+
+    for i in range(len(true_holdings)):
+        end_value = getStockValueOnDate(true_holdings[i][0], date)
+
+        if end_value == None:
+            max_date = getStockMaxDate(true_holdings[i][0])
+            end_value = getStockValueOnDate(true_holdings[i][0], max_date[0])
+
+        cash_value = round(end_value[0] * true_holdings[i][1], 2)
+        portfolio_value += cash_value
+
+    current_cash = getCustomerCurrentCash(uuid)
+
+    portfolio_value += current_cash[0]
+    return portfolio_value

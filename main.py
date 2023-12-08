@@ -228,6 +228,25 @@ def removeCustomerMenu():
     rollInOptions(menus["SimulationParametersMenu"], .1)
     runMenu(menu_mappings["SimulationParametersMenu"])
 
+def reportCustomerPortfolioValue():
+    rollInOptions(menus["CustomerReportMenu"], .1)
+
+    uuid_input = None
+    while True:
+        print(line)
+        uuid_input = input("Please Input a Valid UUID or '1' to Go Back: ")
+        if uuid_input == '1' or validateCustomer(uuid_input):
+            break
+        print("This Customer Does Not Exist. Please Try Again")
+
+    if uuid_input != '1':
+        port_value = calculatePortfolioValue(uuid_input, simulation_end_date)
+        print(line)
+        print("$"+str(port_value))
+
+    print(line)
+    rollInOptions(menus["SimulationExecutionMenu"], .1)
+    runMenu(menu_mappings["SimulationExecutionMenu"])
 
 menu_mappings = {
 
@@ -255,7 +274,7 @@ menu_mappings = {
     "SimulationExecutionMenu" : {
         '1':viewCustomersExec,
         '2':print,
-        '3':print,
+        '3':reportCustomerPortfolioValue,
         '4':print,
         '5':print,
         '6':print,

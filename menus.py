@@ -68,4 +68,6 @@ menus = {
 
     "RemoveCustomerMenu" : color.BOLD + color.GREEN + "\nRemove Customer" + color.END + color.END,
 
+    "CustomerReportMenu" : color.BOLD + color.GREEN + "\nCustomer Report" + color.END + color.END,
+
 }
