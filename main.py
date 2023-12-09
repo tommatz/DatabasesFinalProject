@@ -2,6 +2,7 @@ import time
 from datetime import date, datetime, timedelta
 from menus import *
 from database import *
+from plot import *
 
 simulation_start_date = "2022-01-01"
 simulation_end_date = str(date.today())
@@ -17,7 +18,7 @@ def rollInOptions(text, delay):
             
     time.sleep(delay)
     sub = text[start:len(text)]
-    print(sub)
+    print(sub)    
 
 def runMenu(menu_mapping):
     val = None
@@ -36,10 +37,12 @@ def exit_pro():
 
 def runInfo():
     print(line)
-    rollInOptions(menus["Info"], 1)
-    print(line)
-    rollInOptions(menus["InfoMenu"], .1)
-    runMenu(menu_mappings["InfoMenu"])
+    rollInOptions(menus["Info"], .1)
+
+    enterToContinue()
+
+    rollInOptions(menus["StartUpMenu"], .1)
+    runMenu(menu_mappings["StartUpMenu"])
 
 def runSimulationParamsMenu():
     print(line)
@@ -68,6 +71,14 @@ def stratNumToText(num):
     elif num == 4:
         return "every day there is at least a 1" + "%" + " drop"
     
+def enterToContinue():
+    while True:
+        print(line)
+        f_name = input("Please Press ENTER to Continue...")
+        if f_name != None:
+            break
+        print("How did we even end up here")
+
 def viewCustomers(isSimParam = None):
     customers = getCustomers()
     for x in customers:
@@ -95,6 +106,8 @@ def viewCustomers(isSimParam = None):
             time.sleep(.1)
             print(f"{percent}% of their cash while buying {strat_type}.")
 
+        enterToContinue()
+
     if isSimParam != False:
         runSimulationParamsMenu()
     else:
@@ -114,7 +127,7 @@ def editSimDates():
         date_format = '%Y-%m-%d'
         try:
             dateObject = datetime.strptime(s_date, date_format)
-            simulation_start_date = datetime.strptime(str(dateObject), '%Y-%m-%d %H:%M:%S')
+            simulation_start_date = str(datetime.strptime(str(dateObject), '%Y-%m-%d %H:%M:%S'))[:-9]
             if dateObject < (datetime.now() - timedelta(days=1)):
                 s_date = dateObject
                 break
@@ -131,7 +144,7 @@ def editSimDates():
         date_format = '%Y-%m-%d'
         try:
             dateObject = datetime.strptime(e_date, date_format)
-            simulation_end_date = datetime.strptime(str(dateObject), '%Y-%m-%d %H:%M:%S')
+            simulation_end_date = str(datetime.strptime(str(dateObject), '%Y-%m-%d %H:%M:%S'))[:-9]
             if dateObject > s_date and dateObject < datetime.now():
                 break
             print(line)
@@ -229,6 +242,19 @@ def removeCustomerMenu():
     rollInOptions(menus["SimulationParametersMenu"], .1)
     runMenu(menu_mappings["SimulationParametersMenu"])
 
+def getDateFrame(end_date):
+    start = datetime.strptime(simulation_start_date, "%Y-%m-%d")
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+
+    dates = []
+    current_date = start
+
+    while current_date <= end:
+        dates.append(str(current_date.date()))
+        current_date += timedelta(days=1)
+
+    return dates
+
 def reportCustomerPortfolioValue():
     rollInOptions(menus["CustomerReportMenu"], .1)
 
@@ -245,7 +271,9 @@ def reportCustomerPortfolioValue():
         customer = getCustomer(uuid_input)
         print(line)
         print(f"{customer[1]} {customer[2]} started with ${round(customer[3],2)} after the simulation \ntheir net portfolio value is ${round(port_value, 2)}.")
-
+        dates = getDateFrame(simulation_end_date)
+        generatePortfolioPlot(uuid_input, dates)
+        
     print(line)
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])
@@ -259,6 +287,7 @@ def outputSimulatedStocks():
         print(ticker)
         print(white_line)
 
+    enterToContinue()
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])
 
@@ -275,6 +304,7 @@ def outputBestPerformingStock():
     print(f"This resulted in a {round(result[1] ,2)}% percent change from {simulation_start_date} to {simulation_end_date}.")
     time.sleep(.1)
 
+    enterToContinue()
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])
 
@@ -290,6 +320,7 @@ def outputWorstPerformingStock():
     print(f"This resulted in a {round(result[1] ,2)}% percent change from {simulation_start_date} to {simulation_end_date}.")
     time.sleep(.1)
 
+    enterToContinue()
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])
 
@@ -310,8 +341,8 @@ def outputBestStockDay():
         print(white_line)
         result = getStocksBestValue(ticker)
         print(f"{ticker} had its highest value on {result[1][:-9]} where it achieved a peak value of ${round(result[0], 2)}.")
-        print(white_line)
 
+    enterToContinue()
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])
 
@@ -331,9 +362,9 @@ def outputWorstStockDay():
     if ticker != '1':
         print(white_line)
         result = getStocksWorstValue(ticker)
-        print(f"{ticker} had its lowest value on {result[1][:-9]} where it achieved a bottom value of ${round(result[0], 2)}.")
-        print(white_line)
+        print(f"{ticker} had its lowest value on {result[1][:-9]} where it fell to a value of ${round(result[0], 2)}.")
 
+    enterToContinue()
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])
 
@@ -390,7 +421,6 @@ def addTradingStrategy():
     runMenu(menu_mappings["SimulationParametersMenu"])
     
 def reportCustomerPortfolioValueOnDate():
-
     rollInOptions(menus["CustomerReportMenu"], .1)
 
     uuid_input = None
@@ -422,9 +452,12 @@ def reportCustomerPortfolioValueOnDate():
                 print(line)
                 print("Incorrect data format, should be YYYY-MM-DD")
 
+        customer = getCustomer(uuid_input)
         port_value = calculatePortfolioValue(uuid_input, s_date)
         print(line)
-        print("$"+str(port_value))
+        print(f"{customer[1]} {customer[2]} started with ${round(customer[3],2)} on {str(s_date)[:-9]} \ntheir net portfolio value is ${round(port_value, 2)}.")
+        dates = getDateFrame(str(s_date)[:-9])
+        generatePortfolioPlot(uuid_input, dates)
 
     print(line)
     rollInOptions(menus["SimulationExecutionMenu"], .1)
@@ -440,20 +473,14 @@ menu_mappings = {
         '4':exit_pro
     },
 
-    "InfoMenu" : {
-        '1':returnMainMenu,
-        '2':exit_pro
-    },
-
     "SimulationParametersMenu" : {
         '1':viewCustomers,
         '2':addCustomer,
         '3':addTradingStrategy,
         '4':removeCustomerMenu,
-        '5':print,
-        '6':editSimDates,
-        '7':returnMainMenu,
-        '8':exit_pro
+        '5':editSimDates,
+        '6':returnMainMenu,
+        '7':exit_pro
     },
 
     "SimulationExecutionMenu" : {
