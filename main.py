@@ -176,7 +176,7 @@ def addCustomer():
     while True:
         print(line)
         ticker = input("Input a Valid Stock Ticker: ")
-        ticker.upper()
+        ticker = ticker.upper()
         if validateTicker(ticker):
             break
         print("This ticker was not valid. Please try again.")
@@ -242,8 +242,9 @@ def reportCustomerPortfolioValue():
 
     if uuid_input != '1':
         port_value = calculatePortfolioValue(uuid_input, simulation_end_date)
+        customer = getCustomer(uuid_input)
         print(line)
-        print("$"+str(port_value))
+        print(f"{customer[1]} {customer[2]} started with ${round(customer[3],2)} after the simulation \ntheir net portfolio value is ${round(port_value, 2)}.")
 
     print(line)
     rollInOptions(menus["SimulationExecutionMenu"], .1)
@@ -336,7 +337,60 @@ def outputWorstStockDay():
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])
 
+def addTradingStrategy():
+    rollInOptions(menus["AddStrategyMenu"], .1)
+
+    uuid_input = None
+    while True:
+        print(line)
+        uuid_input = input("Please Input a Valid UUID or '1' to Go Back: ")
+        if uuid_input == '1' or validateCustomer(uuid_input):
+            break
+        print("This Customer Does Not Exist. Please Try Again")
+
+    if uuid_input != '1':
+        strats = retrieveCustomerStrategies(uuid_input)
+        tickers = []
+        for strat in strats:
+            tickers.append(strat[3])
+
+        ticker = None
+        while True:
+            print(line)
+            ticker = input("Input a Valid Stock Ticker: ")
+            ticker = ticker.upper()
+            if validateTicker(ticker):
+                break
+            print("This ticker was not valid. Please try again.")
+
+        print(line)
+        rollInOptions(menus["Strategies"], .1)
+
+        strategy = None
+        while True:
+            print(line)
+            strategy = input("Choose a Strategy: ")
+            if strategy.isnumeric() and int(strategy) <= 4:
+                break
+            print("Please Make a Valid Selection")
+
+        investment_percentage = None
+        while True:
+            print(line)
+            investment_percentage = input("Define Percentage to Invest per Order: ")
+            if investment_percentage.replace(".", "").isnumeric() and float(investment_percentage) <= 100:
+                break
+            print("This must be a valid percentage. Do not include the percentage sign.")
+
+        addStrat(uuid_input, ticker, strategy, investment_percentage, simulation_start_date, simulation_end_date)
+        print("Successfully added new trading strategy")
+
+    print(line)
+    rollInOptions(menus["SimulationParametersMenu"], .1)
+    runMenu(menu_mappings["SimulationParametersMenu"])
+    
 def reportCustomerPortfolioValueOnDate():
+
     rollInOptions(menus["CustomerReportMenu"], .1)
 
     uuid_input = None
@@ -394,10 +448,12 @@ menu_mappings = {
     "SimulationParametersMenu" : {
         '1':viewCustomers,
         '2':addCustomer,
-        '3':removeCustomerMenu,
-        '4':editSimDates,
-        '5':returnMainMenu,
-        '6':exit_pro
+        '3':addTradingStrategy,
+        '4':removeCustomerMenu,
+        '5':print,
+        '6':editSimDates,
+        '7':returnMainMenu,
+        '8':exit_pro
     },
 
     "SimulationExecutionMenu" : {

@@ -40,6 +40,11 @@ def getCustomers():
     res = cur.execute("SELECT * FROM CUSTOMER;")
     return res.fetchall()
 
+def getCustomer(uuid):
+    global cur, con
+    res = cur.execute(f"SELECT * FROM CUSTOMER WHERE uuid = '{uuid}';")
+    return res.fetchone()
+
 def createTickerTable(ticker):
     global cur, con
     cur.execute("CREATE TABLE IF NOT EXISTS " + ticker + " (date PRIMARY KEY, open, high, low, close, adj_close, volume);")
@@ -250,9 +255,12 @@ def getBestPerformingStock(s_date, e_date, worst):
 
     return best
 
-def executeTradesOnDateTable(strat, date_table):
-    starting_cash, current_cash = getCustomerCash(strat[0])
-    for date in date_table:
+def executeTradesOnDateTable(date_table, uuid):
+    starting_cash, current_cash = getCustomerCash(uuid)
+    for i in range(len(date_table)):
+        date = date_table[i][0]
+        strat = date_table[i][1]
+        
         if current_cash <= 0:
             break
 
@@ -269,23 +277,34 @@ def executeSimulation():
     resetCustomerCash()
     clearOrderTable()
     strats = retrieveStrategies()
-    for strat in strats:
-        if strat[1] == '1': #Buy Every Day
-            date_table = getAllDates(strat[2])
-            executeTradesOnDateTable(strat, date_table)
+    customers = list(getCustomers())
 
-        elif strat[1] == '2': #Buy Every Red Day
-            date_table = getRedDates(strat[2])
-            executeTradesOnDateTable(strat, date_table)
+    for customer in customers:
+        full_date_table = []
+        for strat in strats:
 
-        elif strat[1] == '3': #Buy Every Green Day
-            date_table = getGreenDates(strat[2])
-            executeTradesOnDateTable(strat, date_table)
+            if strat[0] == customer[0]:
 
-        elif strat[1] == '4': #Buy Every Day of 1% Drop
-            date_table = getOnePercentDropDates(strat[2])
-            executeTradesOnDateTable(strat, date_table)
+                if strat[1] == '1': #Buy Every Day
+                    date_table = getAllDates(strat[2])
 
+                elif strat[1] == '2': #Buy Every Red Day
+                    date_table = getRedDates(strat[2])
+
+                elif strat[1] == '3': #Buy Every Green Day
+                    date_table = getGreenDates(strat[2])
+
+                elif strat[1] == '4': #Buy Every Day of 1% Drop
+                    date_table = getOnePercentDropDates(strat[2])
+                
+                for date in date_table:
+                    full_date_table.append([date, strat])
+
+        full_date_table.sort()
+
+        executeTradesOnDateTable(full_date_table, customer[0])
+
+    
 def calculatePortfolioValue(uuid, date):
     simulatated_tickers = []
     strats = retrieveCustomerStrategies(uuid)
@@ -295,37 +314,23 @@ def calculatePortfolioValue(uuid, date):
     if len(simulatated_tickers) <= 0:
         current_cash = getCustomerStartingCash(uuid)
         return current_cash[0]
-
-    query = "SELECT"
-
-    for ticker in simulatated_tickers:
-        query += (" SUM(ORDER_HISTORY.cash_amount/" + ticker + ".close)")
-
-    query += " FROM ORDER_HISTORY"
-
-    for ticker in simulatated_tickers:
-        query += (", " + ticker)
-
-    query += f" WHERE ORDER_HISTORY.uuid = '{uuid}' AND ORDER_HISTORY.date <= '{date}' AND "
-
-    for i in range(len(simulatated_tickers)):
-        if i > 0:
-            query += " OR "
-        query += (f"(ORDER_HISTORY.ticker = '{simulatated_tickers[i]}' AND ORDER_HISTORY.date = {simulatated_tickers[i]}.date)")
-
-    query += ";"
     
-    res = cur.execute(query)
-    results_list = (list(res.fetchall()))
-
     true_holdings = []
-    portfolio_value = 0
 
     for i in range(len(simulatated_tickers)):
-        if results_list[i][0] == None:
+        query = ("SELECT SUM(ORDER_HISTORY.cash_amount/" + simulatated_tickers[i] + ".close)")
+        query += f" FROM ORDER_HISTORY, {simulatated_tickers[i]}"
+        query += f" WHERE ORDER_HISTORY.uuid = '{uuid}' AND ORDER_HISTORY.date <= '{date}' AND "
+        query += (f"(ORDER_HISTORY.ticker = '{simulatated_tickers[i]}' AND ORDER_HISTORY.date = {simulatated_tickers[i]}.date);")
+
+        res = cur.execute(query)
+        results_list = res.fetchone()[0]
+        if results_list == None:
             true_holdings.append([simulatated_tickers[i], 0])
         else:
-            true_holdings.append([simulatated_tickers[i], results_list[i][0]])
+            true_holdings.append([simulatated_tickers[i], results_list])
+
+    portfolio_value = 0
 
     for i in range(len(true_holdings)):
         real_date = getStockNearestDate(true_holdings[i][0], date)

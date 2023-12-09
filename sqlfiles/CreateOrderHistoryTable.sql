@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS ORDER_HISTORY(
     cash_amount, 
     execution_time, 
     FOREIGN KEY(uuid) REFERENCES CUSTOMER(uuid), 
-    PRIMARY KEY (uuid, date, execution_time)
+    PRIMARY KEY (uuid, date, ticker)
 );

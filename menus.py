@@ -36,10 +36,12 @@ menus = {
         line + "\n" +
         color.GREEN + "1." + color.END + " View Customers in the Database \n" + 
         color.GREEN + "2." + color.END + " Add Customers to the Database \n" + 
-        color.GREEN + "3." + color.END + " Remove Customers from the Database \n" + 
-        color.GREEN + "4." + color.END + " Update Simulation Dates \n" + 
-        color.GREEN + "5." + color.END + " Back \n" + 
-        color.GREEN + "6." + color.END + " Quit",
+        color.GREEN + "3." + color.END + " Add Trading an Additional Trading Strategy \n" + 
+        color.GREEN + "4." + color.END + " Remove Customers From the Database \n" + 
+        color.GREEN + "5." + color.END + " Remove a Strategy From the Database \n" + 
+        color.GREEN + "6." + color.END + " Update Simulation Dates \n" + 
+        color.GREEN + "7." + color.END + " Back \n" + 
+        color.GREEN + "8." + color.END + " Quit",
 
     "SimulationExecutionMenu" : 
         color.BOLD + color.GREEN + "\nSimulation Reports" + color.END + color.END + "\n" +
@@ -79,5 +81,7 @@ menus = {
     "BestStockDayMenu" : color.BOLD + color.GREEN + "\nHighest Value in Simulation" + color.END + color.END,
 
     "WorstStockDayMenu" : color.BOLD + color.GREEN + "\nLowest Value in Simulation" + color.END + color.END,
+
+    "AddStrategyMenu" : color.BOLD + color.GREEN + "\nAdd a New Trading Strategy" + color.END + color.END,
 
 }
