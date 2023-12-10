@@ -2,9 +2,26 @@ import sqlite3
 import uuid
 import yfinance as yf
 import pandas as pd
+from datetime import date, datetime, timedelta
 
 cur = None
 con = None
+
+def translateTicker(raw_yfinance_ticker):
+    translation = raw_yfinance_ticker
+    translation = translation.replace("^","I_")
+    translation = translation.replace("=","EQ_")
+    translation = translation.replace("-","D_")
+    translation = translation.replace(".","P_")
+    return translation
+
+def translateBackTicker(transed_yfinance_ticker):
+    translation = transed_yfinance_ticker
+    translation = translation.replace("I_","^")
+    translation = translation.replace("EQ_","=")
+    translation = translation.replace("D_","-")
+    translation = translation.replace("P_",".")
+    return translation
 
 def readSQLFile(filename):
     with open('sqlfiles/'+filename, 'r') as sql_file:
@@ -24,10 +41,23 @@ def addCustomer(uuid, f_name, l_name, cash):
     cur.execute("""INSERT INTO CUSTOMER VALUES (?,?,?,?,?);""", (str(uuid), f_name, l_name, int(cash), int(cash)))
     con.commit()
 
+def getSimulatedStocks():
+    global cur, con
+    res = cur.execute("""SELECT name FROM sqlite_master WHERE type='table';""")
+    ticker_names = []
+    for x in res.fetchall():
+        x = list(x)
+        if x[0] != 'CUSTOMER' and x[0] != 'ORDER_HISTORY' and x[0] != 'STRATEGIES':
+            ticker_names.append(x[0])
+
+    return(ticker_names)
+
 def addStrat(uuid, ticker, strat, percentage, s_date, e_date):
     global cur, con
     cur.execute("""INSERT INTO STRATEGIES VALUES (?,?,?,?);""", (str(uuid), strat, ticker, float(percentage)))
-    dowloadTickerInfo(ticker, s_date, e_date)
+    tickers = getSimulatedStocks()
+    if not ticker in tickers:
+        dowloadTickerInfo(ticker, s_date, e_date)
     con.commit()
 
 def addNewClient(f_name, l_name, cash, ticker, strat, percentage, s_date, e_date):
@@ -47,11 +77,13 @@ def getCustomer(uuid):
 
 def createTickerTable(ticker):
     global cur, con
+    ticker = translateTicker(ticker)
     cur.execute("CREATE TABLE IF NOT EXISTS " + ticker + " (date PRIMARY KEY, open, high, low, close, adj_close, volume);")
     con.commit()
 
 def insertOnTickerTable(ticker, date, open, high, low, close, adj_close, volume):
     global cur, con
+    ticker = translateTicker(ticker)
     cur.execute("INSERT INTO " + ticker + " VALUES (?,?,?,?,?,?,?);", (str(date), open, high, low, close, adj_close, volume))
     con.commit()
 
@@ -78,28 +110,23 @@ def datesUpdated(s_date, e_date):
     global cur, con
     res = cur.execute("""SELECT name FROM sqlite_master WHERE type='table';""")
     ticker_names = []
+    ticker_names_translated = []
+
     for x in res.fetchall():
         x = list(x)
         if x[0] != 'CUSTOMER' and x[0] != 'ORDER_HISTORY' and x[0] != 'STRATEGIES':
-            ticker_names.append(x[0])
+            ticker_names.append(translateBackTicker(x[0]))
+            ticker_names_translated.append(x[0])
+
+    for x in ticker_names_translated:
+        dropTable(x)
 
     for x in ticker_names:
-        dropTable(x)
         dowloadTickerInfo(x, s_date, e_date)
-
-def getSimulatedStocks():
-    global cur, con
-    res = cur.execute("""SELECT name FROM sqlite_master WHERE type='table';""")
-    ticker_names = []
-    for x in res.fetchall():
-        x = list(x)
-        if x[0] != 'CUSTOMER' and x[0] != 'ORDER_HISTORY' and x[0] != 'STRATEGIES':
-            ticker_names.append(x[0])
-
-    return(ticker_names)
 
 def addOrder(uuid, ticker, date, order_type, cash_amount, execution_time):
     global cur, con
+    ticker = translateTicker(ticker)
     cur.execute("INSERT INTO ORDER_HISTORY VALUES (?,?,?,?,?,?);", (uuid, ticker, date, order_type, cash_amount, execution_time))
     con.commit()
 
@@ -205,14 +232,6 @@ def getBestPerformingStock(s_date, e_date, worst):
     global cur, con
     tickers = getSimulatedStocks()
 
-    real_s_date = getStockNearestDate(tickers[0], s_date)
-    if real_s_date == None:
-        real_s_date = getStockNearestDateLower(tickers[0])
-
-    real_e_date = getStockNearestDate(tickers[0], e_date)
-    if real_e_date == None:
-        real_e_date = getStockNearestDateLower(tickers[0])
-
     query = "SELECT"
 
     for i in range(len(tickers)):
@@ -223,6 +242,14 @@ def getBestPerformingStock(s_date, e_date, worst):
     query += " FROM"
 
     for i in range(len(tickers)):
+        real_s_date = getStockNearestDate(tickers[i], s_date)
+        if real_s_date == None:
+            real_s_date = getStockNearestDateLower(tickers[i])
+
+        real_e_date = getStockNearestDate(tickers[i], e_date)
+        if real_e_date == None:
+            real_e_date = getStockNearestDateLower(tickers[i])
+
         if i > 0:
             query += ","
         query += f" (SELECT close FROM {tickers[i]} WHERE date = '{real_s_date[0]}') AS {tickers[i]}_start,"
@@ -273,9 +300,11 @@ def executeTradesOnDateTable(date_table, uuid):
 
     setCustomerCash(strat[0], current_cash)
 
+
 def executeSimulation():
     resetCustomerCash()
     clearOrderTable()
+
     strats = retrieveStrategies()
     customers = list(getCustomers())
 
@@ -286,16 +315,16 @@ def executeSimulation():
             if strat[0] == customer[0]:
 
                 if strat[1] == '1': #Buy Every Day
-                    date_table = getAllDates(strat[2])
+                    date_table = getAllDates(translateTicker(strat[2]))
 
                 elif strat[1] == '2': #Buy Every Red Day
-                    date_table = getRedDates(strat[2])
+                    date_table = getRedDates(translateTicker(strat[2]))
 
                 elif strat[1] == '3': #Buy Every Green Day
-                    date_table = getGreenDates(strat[2])
+                    date_table = getGreenDates(translateTicker(strat[2]))
 
                 elif strat[1] == '4': #Buy Every Day of 1% Drop
-                    date_table = getOnePercentDropDates(strat[2])
+                    date_table = getOnePercentDropDates(translateTicker(strat[2]))
                 
                 for date in date_table:
                     full_date_table.append([date, strat])
@@ -309,7 +338,7 @@ def calculatePortfolioValue(uuid, date):
     simulatated_tickers = []
     strats = retrieveCustomerStrategies(uuid)
     for strat in strats:
-        simulatated_tickers.append(strat[2])
+        simulatated_tickers.append(translateTicker(strat[2]))
 
     if len(simulatated_tickers) <= 0:
         current_cash = getCustomerStartingCash(uuid)

@@ -31,7 +31,7 @@ menus = {
         line + "\n" +
         color.GREEN + "1." + color.END + " View Customers in the Database \n" + 
         color.GREEN + "2." + color.END + " Add Customers to the Database \n" + 
-        color.GREEN + "3." + color.END + " Add Trading an Additional Trading Strategy \n" + 
+        color.GREEN + "3." + color.END + " Add an Additional Trading Strategy \n" + 
         color.GREEN + "4." + color.END + " Remove Customers From the Database \n" + 
         color.GREEN + "5." + color.END + " Update Simulation Dates \n" + 
         color.GREEN + "6." + color.END + " Back \n" + 

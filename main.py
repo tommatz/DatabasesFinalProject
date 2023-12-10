@@ -7,6 +7,22 @@ from plot import *
 simulation_start_date = "2022-01-01"
 simulation_end_date = str(date.today())
 
+def translateTicker(raw_yfinance_ticker):
+    translation = raw_yfinance_ticker
+    translation = translation.replace("^","I_")
+    translation = translation.replace("=","EQ_")
+    translation = translation.replace("-","D_")
+    translation = translation.replace(".","P_")
+    return translation
+
+def translateBackTicker(transed_yfinance_ticker):
+    translation = transed_yfinance_ticker
+    translation = translation.replace("I_","^")
+    translation = translation.replace("EQ_","=")
+    translation = translation.replace("D_","-")
+    translation = translation.replace("P_",".")
+    return translation
+
 def rollInOptions(text, delay):
     start = 0
     for i in range(len(text)):
@@ -38,9 +54,7 @@ def exit_pro():
 def runInfo():
     print(line)
     rollInOptions(menus["Info"], .1)
-
     enterToContinue()
-
     rollInOptions(menus["StartUpMenu"], .1)
     runMenu(menu_mappings["StartUpMenu"])
 
@@ -52,7 +66,6 @@ def runSimulationParamsMenu():
 def runSimulationExecution(run_exec = None):
     print(line)
     if run_exec != False:
-        #consider adding a multithreaded loading symbol
         executeSimulation()
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])  
@@ -127,9 +140,9 @@ def editSimDates():
         date_format = '%Y-%m-%d'
         try:
             dateObject = datetime.strptime(s_date, date_format)
-            simulation_start_date = str(datetime.strptime(str(dateObject), '%Y-%m-%d %H:%M:%S'))[:-9]
             if dateObject < (datetime.now() - timedelta(days=1)):
                 s_date = dateObject
+                simulation_start_date = str(s_date.date())
                 break
             print(line)
             print("Start Date Must be in the Past!")
@@ -144,8 +157,9 @@ def editSimDates():
         date_format = '%Y-%m-%d'
         try:
             dateObject = datetime.strptime(e_date, date_format)
-            simulation_end_date = str(datetime.strptime(str(dateObject), '%Y-%m-%d %H:%M:%S'))[:-9]
             if dateObject > s_date and dateObject < datetime.now():
+                e_date = dateObject
+                simulation_end_date = str(e_date.date())
                 break
             print(line)
             print("End Date Must Come After Start Date and Must be in the Past!")
@@ -153,7 +167,7 @@ def editSimDates():
             print(line)
             print("Incorrect data format, should be YYYY-MM-DD")
 
-    datesUpdated(simulation_start_date, simulation_end_date)
+    datesUpdated(s_date, e_date)
     print(line)
     print("Successfully updated simulation dates")
     runSimulationParamsMenu()
@@ -284,7 +298,7 @@ def outputSimulatedStocks():
 
     tickers = getSimulatedStocks()
     for ticker in tickers:
-        print(ticker)
+        print(translateBackTicker(ticker))
         print(white_line)
 
     enterToContinue()
@@ -297,9 +311,9 @@ def outputBestPerformingStock():
     print(line)
 
     result = getBestPerformingStock(simulation_start_date, simulation_end_date, False)
-    print(f"The best performing stock from the simulation was {result[0]}.")
+    print(f"The best performing stock from the simulation was {translateBackTicker(result[0])}.")
     time.sleep(.1)
-    print(f"{result[0]} started with a value of ${round(result[2], 2)} and ended with a value of ${round(result[3], 2)}.")
+    print(f"{translateBackTicker(result[0])} started with a value of ${round(result[2], 2)} and ended with a value of ${round(result[3], 2)}.")
     time.sleep(.1)
     print(f"This resulted in a {round(result[1] ,2)}% percent change from {simulation_start_date} to {simulation_end_date}.")
     time.sleep(.1)
@@ -313,9 +327,9 @@ def outputWorstPerformingStock():
     print(line)
 
     result = getBestPerformingStock(simulation_start_date, simulation_end_date, True)
-    print(f"The worst performing stock from the simulation was {result[0]}.")
+    print(f"The worst performing stock from the simulation was {translateBackTicker(result[0])}.")
     time.sleep(.1)
-    print(f"{result[0]} started with a value of ${round(result[2], 2)} and ended with a value of ${round(result[3], 2)}.")
+    print(f"{translateBackTicker(result[0])} started with a value of ${round(result[2], 2)} and ended with a value of ${round(result[3], 2)}.")
     time.sleep(.1)
     print(f"This resulted in a {round(result[1] ,2)}% percent change from {simulation_start_date} to {simulation_end_date}.")
     time.sleep(.1)
@@ -333,6 +347,7 @@ def outputBestStockDay():
         print(line)
         ticker = input("Input a Stock Ticker in the Simulation or '1' for Back: ")
         ticker = ticker.upper()
+        ticker = translateTicker(ticker)
         if ticker == '1' or ticker in tickers:
             break
         print("This ticker was not valid. Please try again.")
@@ -340,7 +355,7 @@ def outputBestStockDay():
     if ticker != '1':
         print(white_line)
         result = getStocksBestValue(ticker)
-        print(f"{ticker} had its highest value on {result[1][:-9]} where it achieved a peak value of ${round(result[0], 2)}.")
+        print(f"{translateBackTicker(ticker)} had its highest value on {result[1][:-9]} where it achieved a peak value of ${round(result[0], 2)}.")
 
     enterToContinue()
     rollInOptions(menus["SimulationExecutionMenu"], .1)
@@ -355,6 +370,7 @@ def outputWorstStockDay():
         print(line)
         ticker = input("Input a Stock Ticker in the Simulation or '1' for Back: ")
         ticker = ticker.upper()
+        ticker = translateTicker(ticker)
         if ticker == '1' or ticker in tickers:
             break
         print("This ticker was not valid. Please try again.")
@@ -362,7 +378,7 @@ def outputWorstStockDay():
     if ticker != '1':
         print(white_line)
         result = getStocksWorstValue(ticker)
-        print(f"{ticker} had its lowest value on {result[1][:-9]} where it fell to a value of ${round(result[0], 2)}.")
+        print(f"{translateBackTicker(ticker)} had its lowest value on {result[1][:-9]} where it fell to a value of ${round(result[0], 2)}.")
 
     enterToContinue()
     rollInOptions(menus["SimulationExecutionMenu"], .1)
@@ -380,11 +396,6 @@ def addTradingStrategy():
         print("This Customer Does Not Exist. Please Try Again")
 
     if uuid_input != '1':
-        strats = retrieveCustomerStrategies(uuid_input)
-        tickers = []
-        for strat in strats:
-            tickers.append(strat[3])
-
         ticker = None
         while True:
             print(line)
@@ -455,7 +466,7 @@ def reportCustomerPortfolioValueOnDate():
         customer = getCustomer(uuid_input)
         port_value = calculatePortfolioValue(uuid_input, s_date)
         print(line)
-        print(f"{customer[1]} {customer[2]} started with ${round(customer[3],2)} on {str(s_date)[:-9]} \ntheir net portfolio value is ${round(port_value, 2)}.")
+        print(f"{customer[1]} {customer[2]} started with ${round(customer[3],2)}, on {str(s_date)[:-9]} their \nnet portfolio value is ${round(port_value, 2)}.")
         dates = getDateFrame(str(s_date)[:-9])
         generatePortfolioPlot(uuid_input, dates)
 
