@@ -11,7 +11,7 @@
 
 
 ## Overview
-The goal of this program is to backtest stocks with different asset allocation strategies. This was designed as a final project in my databases class (2023 Fall Semester.) The simulator allows you to add multiple customers to the database with different asset allocation strategies. Customers can run more than one strategy at a time. The simulation's start and end date can also be easily manipulated. After customizing the parameters, you are able to execute the simulation and view interesting reports from the backtest.
+The goal of this program is to backtest stocks with different asset allocation strategies. This was designed as a final project for my databases class (2023 Fall Semester.) The simulator allows you to add multiple customers to the database with different asset allocation strategies. Customers can run more than one strategy at a time. The simulation's start and end date can also be easily manipulated. After customizing the parameters, you are able to execute the simulation and view interesting reports from the backtest.
 
 
 ## Running Instructions
