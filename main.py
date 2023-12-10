@@ -474,6 +474,39 @@ def reportCustomerPortfolioValueOnDate():
     rollInOptions(menus["SimulationExecutionMenu"], .1)
     runMenu(menu_mappings["SimulationExecutionMenu"])
 
+def viewCustomerNews():
+    rollInOptions(menus["CustomerNewsMenu"], .1)
+
+    uuid_input = None
+    while True:
+        print(line)
+        uuid_input = input("Please Input a Valid UUID or '1' to Go Back: ")
+        if uuid_input == '1' or validateCustomer(uuid_input):
+            break
+        print("This Customer Does Not Exist. Please Try Again")
+
+    if uuid_input != '1':
+        values = getCustomerNews(uuid_input)
+
+        rollInOptions(menus["CustomerNewsMenu2"], .1)
+
+        for i in range(len(values)):
+            print(line)
+            ticker = values[i][0]
+            title = values[i][1]
+            publisher = values[i][2]
+            link = values[i][3]
+            print(translateBackTicker(ticker) + " News " + str(i+1) + "/" + str(len(values)))
+            print(white_line)
+            print(title)
+            print("By: " + publisher)
+            print("Access: " + link)
+            enterToContinue()
+
+    print(line)
+    rollInOptions(menus["SimulationExecutionMenu"], .1)
+    runMenu(menu_mappings["SimulationExecutionMenu"])
+
 
 menu_mappings = {
 
@@ -503,8 +536,9 @@ menu_mappings = {
         '6':outputWorstPerformingStock,
         '7':outputBestStockDay,
         '8':outputWorstStockDay,
-        '9':returnMainMenu,
-        '10':exit_pro
+        '9': viewCustomerNews,
+        '10':returnMainMenu,
+        '11':exit_pro
     },
 
 }

@@ -48,8 +48,9 @@ menus = {
         color.GREEN + "6." + color.END + " Report Worst Performing Stock From Simulation \n" + 
         color.GREEN + "7." + color.END + " Report Stock's Highest Value From Simulation \n" + 
         color.GREEN + "8." + color.END + " Report Stock's Lowest Value From Simulation \n" + 
-        color.GREEN + "9." + color.END + " Back \n" + 
-        color.GREEN + "10." + color.END + " Quit",
+        color.GREEN + "9." + color.END + " View Customer Market News Feed \n" + 
+        color.GREEN + "10." + color.END + " Back \n" + 
+        color.GREEN + "11." + color.END + " Quit",
 
     "AddCustomersMenu" : color.BOLD + color.GREEN + "\nAdd Customer" + color.END + color.END,
 
@@ -77,5 +78,9 @@ menus = {
     "WorstStockDayMenu" : color.BOLD + color.GREEN + "\nLowest Value in Simulation" + color.END + color.END,
 
     "AddStrategyMenu" : color.BOLD + color.GREEN + "\nAdd a New Trading Strategy" + color.END + color.END,
+
+    "CustomerNewsMenu" : color.BOLD + color.GREEN + "\nCustomer Market News" + color.END + color.END,
+
+    "CustomerNewsMenu2" : color.BOLD + color.GREEN + "\nNews Feed" + color.END + color.END,
 
 }

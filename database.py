@@ -65,6 +65,12 @@ def addNewClient(f_name, l_name, cash, ticker, strat, percentage, s_date, e_date
     addCustomer(random_uuid, f_name, l_name, cash)
     addStrat(random_uuid, ticker, strat, percentage, s_date, e_date)
 
+def createNewsTable(ticker):
+    global cur, con
+    ticker = translateTicker(ticker)
+    cur.execute("CREATE TABLE IF NOT EXISTS " + ticker + "_NEWS (ticker NOT NULL, title NOT NULL, publisher, link NOT NULL, PRIMARY KEY (link));")
+    con.commit()
+
 def getCustomers():
     global cur, con
     res = cur.execute("SELECT * FROM CUSTOMER;")
@@ -87,6 +93,12 @@ def insertOnTickerTable(ticker, date, open, high, low, close, adj_close, volume)
     cur.execute("INSERT INTO " + ticker + " VALUES (?,?,?,?,?,?,?);", (str(date), open, high, low, close, adj_close, volume))
     con.commit()
 
+def insertNews(ticker, title, publisher, link):
+    global cur, con
+    ticker = translateTicker(ticker)
+    cur.execute("INSERT INTO " + ticker + "_NEWS VALUES (?,?,?,?);", (ticker, title, publisher, link))
+    con.commit()
+
 def validateTicker(ticker):
     ticker = yf.Ticker(ticker)
     try:
@@ -100,6 +112,16 @@ def dowloadTickerInfo(ticker, s_date, e_date):
     createTickerTable(ticker)
     for x in df.index:
         insertOnTickerTable(ticker, x, df.loc[x]['Open'], df.loc[x]['High'], df.loc[x]['Low'], df.loc[x]['Close'], df.loc[x]['Adj Close'], df.loc[x]['Volume'])
+    
+    createNewsTable(ticker)
+    tick = yf.Ticker(ticker)
+    news = tick.news
+
+    for i in range(len(news)):
+        if i < 3:
+            insertNews(ticker, news[i]["title"], news[i]["publisher"], news[i]["link"])
+        else:
+            break
 
 def dropTable(ticker):
     global cur, con
@@ -256,7 +278,7 @@ def getBestPerformingStock(s_date, e_date, worst):
         query += f" (SELECT close FROM {tickers[i]} WHERE date = '{real_e_date[0]}') AS {tickers[i]}_end"
 
     query += ";"
-
+    
     res = cur.execute(query)
     res =  list(res.fetchone())
     final_results = []
@@ -380,3 +402,23 @@ def calculatePortfolioValue(uuid, date):
 
     portfolio_value += starting_cash
     return round(portfolio_value, 2)
+
+
+def getCustomerNews(uuid):
+    global cur, con
+    tickers = []
+    strats = retrieveCustomerStrategies(uuid)
+    for strat in strats:
+        tickers.append(translateTicker(strat[2]))
+    
+    query = ""
+    for i in range(len(tickers)):
+        if i > 0:
+            query += " UNION ALL "
+
+        query += "SELECT * FROM "
+        query += (tickers[i] + "_NEWS ")
+
+    query += ";"
+    res = cur.execute(query)
+    return list(res.fetchall())
