@@ -16,7 +16,7 @@ The goal of this program is to backtest stocks with different asset allocation s
 
 ## Running Instructions
 ### Install Dependencies
-Navigate to the project directory and run <code>pip install -r requirements.txt<code>. (Or pip3 if applicable)
+Navigate to the project directory and run <code>pip install -r requirements.txt</code>. (Or pip3 if applicable)
 
 ### Run the Program
-From the project directory, run <code>python main.py<code>. (Or python3 if applicable)
+From the project directory, run <code>python main.py</code>. (Or python3 if applicable)
