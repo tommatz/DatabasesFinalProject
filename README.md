@@ -1,6 +1,6 @@
 <div align="center">
-  <h2> Stock Backtesting Simulation - Databases Final Project</h2>
-  <h3> Tom Matz </h3>
+  <h3> Stock Backtesting Simulation - Databases Final Project</h3>
+  <h4> Tom Matz </h4>
 </div>
 
 ------------------
