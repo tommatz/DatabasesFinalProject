@@ -1,13 +1,13 @@
 <div align="center">
-  <h4> Stock Backtesting Simulation - Databases Final Project</h4>
-  <h5> Tom Matz </h5>
+  <h2> Stock Backtesting Simulation - Databases Final Project</h4>
+  <h3> Tom Matz </h5>
 </div>
 
 ------------------
 
 
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
-![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)(https://www.sqlite.org/download.html)
+[![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/download.html)
 
 
 ## Overview
