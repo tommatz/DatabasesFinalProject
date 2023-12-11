@@ -47,7 +47,7 @@ def getSimulatedStocks():
     ticker_names = []
     for x in res.fetchall():
         x = list(x)
-        if x[0] != 'CUSTOMER' and x[0] != 'ORDER_HISTORY' and x[0] != 'STRATEGIES':
+        if x[0] != 'CUSTOMER' and x[0] != 'ORDER_HISTORY' and x[0] != 'STRATEGIES' and x[0][-4:] != 'NEWS':
             ticker_names.append(x[0])
 
     return(ticker_names)
@@ -144,7 +144,8 @@ def datesUpdated(s_date, e_date):
         dropTable(x)
 
     for x in ticker_names:
-        dowloadTickerInfo(x, s_date, e_date)
+        if x[-4:] != "NEWS":
+            dowloadTickerInfo(x, s_date, e_date)
 
 def addOrder(uuid, ticker, date, order_type, cash_amount, execution_time):
     global cur, con
