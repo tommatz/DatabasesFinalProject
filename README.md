@@ -22,7 +22,7 @@ Navigate to the project directory and run <code>pip install -r requirements.txt<
 From the project directory, run <code>python main.py</code>. (Or python3 if applicable)
 
 ### Running Your First Simulation
-1. Add a customer to the database
+1. Add a Customer to the Database
     - Select Option 2 in the main menu
     - Select Option 2 in the simulation parameters sub-menu
     - Follow Prompts 
