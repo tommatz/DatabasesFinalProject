@@ -30,7 +30,7 @@ From the project directory, run <code>python main.py</code>. (Or python3 if appl
     - Select Option 3 from the simulation parameters sub-menu
     - Follow Prompts
 3. Change Simulation Dates (Optional)
-    - Selection Option 5 from the simulation parameters sub-menu
+    - Select Option 5 from the simulation parameters sub-menu
     - Follow Prompts
 4. Return to Main Menu
 5. Execute Simulation
