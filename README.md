@@ -37,4 +37,4 @@ From the project directory, run <code>python main.py</code>. (Or python3 if appl
     - Select Option 3 from the main menu
     - View reports from the simulation
     - Please note: in order to view customer specific reports, you must first have their UUID.
-    - You can view customer's UUID's by selecting option 1 in the report menu.
+    - You can view customers' UUID's by selecting option 1 in the report menu.
