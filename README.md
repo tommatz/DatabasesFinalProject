@@ -20,3 +20,21 @@ Navigate to the project directory and run <code>pip install -r requirements.txt<
 
 ### Run the Program
 From the project directory, run <code>python main.py</code>. (Or python3 if applicable)
+
+### Running Your First Simulation
+1. Add a customer to the database
+  - Select Option 2 in the main menu
+  - Select Option 2 in the simulation parameters sub-menu
+  - Follow Prompts 
+2. Define Additional Strategies (Optional)
+  - Select Option 3 from the simulation parameters sub-menu
+  - Follow Prompts
+3. Change Simulation Dates (Optional)
+  - Selection Option 5 from the simulation parameters sub-menu
+  - Follow Prompts
+4. Return to Main Menu
+5. Execute Simulation
+  - Select Option 3 from the main menu
+  - View reports from the simulation
+  - Please note: in order to view customer specific reports, you must first have their UUID.
+  - You can view customer's UUID's by selecting option 1 in the report menu.
